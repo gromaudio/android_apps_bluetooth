@@ -47,7 +47,7 @@ public class AtPhonebook {
      *   dialed calls respectively)
      */
     private static final String[] CALLS_PROJECTION = new String[] {
-        Calls._ID, Calls.NUMBER
+        Calls._ID, Calls.NUMBER, Calls.NUMBER_PRESENTATION
     };
 
     /** The projection to use when querying the contacts database in response
@@ -69,6 +69,7 @@ public class AtPhonebook {
     private class PhonebookResult {
         public Cursor  cursor; // result set of last query
         public int     numberColumn;
+        public int     numberPresentationColumn;
         public int     typeColumn;
         public int     nameColumn;
     };
@@ -204,11 +205,15 @@ public class AtPhonebook {
                 if ("SM".equals(mCurrentPhonebook)) {
                     atCommandResponse = "+CPBS: \"SM\",0," + getMaxPhoneBookSize(0);
                     atCommandResult = HeadsetHalConstants.AT_RESPONSE_OK;
+                    if (atCommandResponse != null)
+                        mStateMachine.atResponseStringNative(atCommandResponse);
+                    mStateMachine.atResponseCodeNative(atCommandResult, atCommandErrorCode);
                     break;
                 }
                 PhonebookResult pbr = getPhonebookResult(mCurrentPhonebook, true);
                 if (pbr == null) {
                     atCommandErrorCode = BluetoothCmeError.OPERATION_NOT_SUPPORTED;
+                    mStateMachine.atResponseCodeNative(atCommandResult, atCommandErrorCode);
                     break;
                 }
                 int size = pbr.cursor.getCount();
@@ -227,7 +232,7 @@ public class AtPhonebook {
                 String[] args = atString.split("=");
                 // Select phonebook memory
                 if (args.length < 2 || !(args[1] instanceof String)) {
-                    atCommandErrorCode = BluetoothCmeError.OPERATION_NOT_SUPPORTED;
+                    mStateMachine.atResponseCodeNative(atCommandResult, atCommandErrorCode);
                     break;
                 }
                 String pb = ((String)args[1]).trim();
@@ -236,6 +241,7 @@ public class AtPhonebook {
                 if (getPhonebookResult(pb, false) == null && !"SM".equals(pb)) {
                    if (DBG) log("Dont know phonebook: '" + pb + "'");
                    atCommandErrorCode = BluetoothCmeError.OPERATION_NOT_ALLOWED;
+                   mStateMachine.atResponseCodeNative(atCommandResult, atCommandErrorCode);
                    break;
                 }
                 mCurrentPhonebook = pb;
@@ -398,6 +404,8 @@ public class AtPhonebook {
             if (pbr.cursor == null) return false;
 
             pbr.numberColumn = pbr.cursor.getColumnIndexOrThrow(Calls.NUMBER);
+            pbr.numberPresentationColumn =
+                    pbr.cursor.getColumnIndexOrThrow(Calls.NUMBER_PRESENTATION);
             pbr.typeColumn = -1;
             pbr.nameColumn = -1;
         } else {
@@ -406,6 +414,7 @@ public class AtPhonebook {
             if (pbr.cursor == null) return false;
 
             pbr.numberColumn = pbr.cursor.getColumnIndex(Phone.NUMBER);
+            pbr.numberPresentationColumn = -1;
             pbr.typeColumn = pbr.cursor.getColumnIndex(Phone.TYPE);
             pbr.nameColumn = pbr.cursor.getColumnIndex(Phone.DISPLAY_NAME);
         }
@@ -483,7 +492,7 @@ public class AtPhonebook {
             String number = pbr.cursor.getString(pbr.numberColumn);
             String name = null;
             int type = -1;
-            if (pbr.nameColumn == -1) {
+            if (pbr.nameColumn == -1 && number != null && number.length() > 0) {
                 // try caller id lookup
                 // TODO: This code is horribly inefficient. I saw it
                 // take 7 seconds to process 100 missed calls.
@@ -500,8 +509,10 @@ public class AtPhonebook {
                 }
                 if (DBG && name == null) log("Caller ID lookup failed for " + number);
 
-            } else {
+            } else if (pbr.nameColumn != -1) {
                 name = pbr.cursor.getString(pbr.nameColumn);
+            } else {
+                log("processCpbrCommand: empty name and number");
             }
             if (name == null) name = "";
             name = name.trim();
@@ -518,9 +529,14 @@ public class AtPhonebook {
             number = number.trim();
             number = PhoneNumberUtils.stripSeparators(number);
             if (number.length() > 30) number = number.substring(0, 30);
-            if (number.equals("-1")) {
-                // unknown numbers are stored as -1 in our database
+            int numberPresentation = Calls.PRESENTATION_ALLOWED;
+            if (pbr.numberPresentationColumn != -1) {
+                numberPresentation = pbr.cursor.getInt(pbr.numberPresentationColumn);
+            }
+            if (numberPresentation != Calls.PRESENTATION_ALLOWED) {
                 number = "";
+                // TODO: there are 3 types of numbers should have resource
+                // strings for: unknown, private, and payphone
                 name = mContext.getString(R.string.unknownNumber);
             }
 

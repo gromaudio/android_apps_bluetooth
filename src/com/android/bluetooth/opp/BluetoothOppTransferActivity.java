@@ -372,9 +372,6 @@ public class BluetoothOppTransferActivity extends AlertActivity implements
 
                     // retry the failed transfer
                     BluetoothOppUtility.retryTransfer(this, mTransInfo);
-                    Uri uri = Uri.parse(mTransInfo.mFileUri);
-                    BluetoothOppUtility.putSendFileInfo(uri,
-                        BluetoothOppSendFileInfo.generateFileInfo(this, uri, mTransInfo.mFileType));
 
                     BluetoothDevice remoteDevice = mAdapter.getRemoteDevice(mTransInfo.mDestAddr);
 
@@ -436,7 +433,7 @@ public class BluetoothOppTransferActivity extends AlertActivity implements
 
         mProgressTransfer.setProgress(mTransInfo.mCurrentBytes);
 
-        mPercentView.setText(BluetoothOppUtility.formatProgressText(this, mTransInfo.mTotalBytes,
+        mPercentView.setText(BluetoothOppUtility.formatProgressText(mTransInfo.mTotalBytes,
                 mTransInfo.mCurrentBytes));
 
         // Handle the case when DIALOG_RECEIVE_ONGOING evolve to

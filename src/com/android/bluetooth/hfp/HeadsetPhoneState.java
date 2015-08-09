@@ -46,12 +46,6 @@ class HeadsetPhoneState {
     // Number of held (background) calls
     private int mNumHeld = 0;
 
-    // Phone Number
-    private String mNumber;
-
-    // Type of Phone Number
-    private int mType = 0;
-
     // HFP 1.6 CIND signal
     private int mSignal = 0;
 
@@ -122,23 +116,6 @@ class HeadsetPhoneState {
         mNumHeld = numHeldCall;
     }
 
-    void setNumber(String mNumberCall ) {
-        mNumber = mNumberCall;
-    }
-
-    String getNumber()
-    {
-        return mNumber;
-    }
-
-    void setType(int mTypeCall) {
-        mType = mTypeCall;
-    }
-
-    int getType() {
-        return mType;
-    }
-
     int getSignal() {
         return mSignal;
     }
@@ -148,10 +125,7 @@ class HeadsetPhoneState {
     }
 
     void setRoam(int roam) {
-        if (mRoam != roam) {
-            mRoam = roam;
-            sendDeviceStateChanged();
-        }
+        mRoam = roam;
     }
 
     void setBatteryCharge(int batteryLevel) {
@@ -204,6 +178,8 @@ class HeadsetPhoneState {
             mService = (serviceState.getState() == ServiceState.STATE_IN_SERVICE) ?
                 HeadsetHalConstants.NETWORK_STATE_AVAILABLE :
                 HeadsetHalConstants.NETWORK_STATE_NOT_AVAILABLE;
+            setRoam(serviceState.getRoaming() ? HeadsetHalConstants.SERVICE_TYPE_ROAMING
+                                              : HeadsetHalConstants.SERVICE_TYPE_HOME);
             sendDeviceStateChanged();
         }
 
@@ -345,5 +321,15 @@ class HeadsetClccResponse {
         mMpty = mpty;
         mNumber = number;
         mType = type;
+    }
+}
+
+class HeadsetVendorSpecificResultCode {
+    String mCommand;
+    String mArg;
+
+    public HeadsetVendorSpecificResultCode(String command, String arg) {
+        mCommand = command;
+        mArg = arg;
     }
 }

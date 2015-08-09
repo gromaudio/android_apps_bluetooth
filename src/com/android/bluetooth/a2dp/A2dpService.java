@@ -18,11 +18,9 @@ package com.android.bluetooth.a2dp;
 
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothProfile;
-import android.bluetooth.BluetoothUuid;
 import android.bluetooth.IBluetoothA2dp;
 import android.content.Context;
 import android.content.Intent;
-import android.os.ParcelUuid;
 import android.provider.Settings;
 import android.util.Log;
 import com.android.bluetooth.btservice.ProfileService;
@@ -43,13 +41,6 @@ public class A2dpService extends ProfileService {
     private A2dpStateMachine mStateMachine;
     private Avrcp mAvrcp;
     private static A2dpService sAd2dpService;
-    static final ParcelUuid[] A2DP_SOURCE_UUID = {
-        BluetoothUuid.AudioSource
-    };
-    static final ParcelUuid[] A2DP_SOURCE_SINK_UUIDS = {
-        BluetoothUuid.AudioSource,
-        BluetoothUuid.AudioSink
-    };
 
     protected String getName() {
         return TAG;
@@ -60,8 +51,8 @@ public class A2dpService extends ProfileService {
     }
 
     protected boolean start() {
-        mStateMachine = A2dpStateMachine.make(this, this);
         mAvrcp = Avrcp.make(this);
+        mStateMachine = A2dpStateMachine.make(this, this);
         setA2dpService(this);
         return true;
     }
@@ -127,12 +118,6 @@ public class A2dpService extends ProfileService {
         if (getPriority(device) == BluetoothProfile.PRIORITY_OFF) {
             return false;
         }
-        ParcelUuid[] featureUuids = device.getUuids();
-        if ((BluetoothUuid.containsAnyUuid(featureUuids, A2DP_SOURCE_UUID)) &&
-            !(BluetoothUuid.containsAllUuids(featureUuids ,A2DP_SOURCE_SINK_UUIDS))) {
-            Log.e(TAG,"Remote does not have A2dp Sink UUID");
-            return false;
-        }
 
         int connectionState = mStateMachine.getConnectionState(device);
         if (connectionState == BluetoothProfile.STATE_CONNECTED ||
@@ -189,6 +174,23 @@ public class A2dpService extends ProfileService {
             Settings.Global.getBluetoothA2dpSinkPriorityKey(device.getAddress()),
             BluetoothProfile.PRIORITY_UNDEFINED);
         return priority;
+    }
+
+    /* Absolute volume implementation */
+    public boolean isAvrcpAbsoluteVolumeSupported() {
+        return mAvrcp.isAbsoluteVolumeSupported();
+    }
+
+    public void adjustAvrcpAbsoluteVolume(int direction) {
+        mAvrcp.adjustVolume(direction);
+    }
+
+    public void setAvrcpAbsoluteVolume(int volume) {
+        mAvrcp.setAbsoluteVolume(volume);
+    }
+
+    public void setAvrcpAudioState(int state) {
+        mAvrcp.setA2dpAudioState(state);
     }
 
     synchronized boolean isA2dpPlaying(BluetoothDevice device) {
@@ -264,6 +266,24 @@ public class A2dpService extends ProfileService {
             A2dpService service = getService();
             if (service == null) return BluetoothProfile.PRIORITY_UNDEFINED;
             return service.getPriority(device);
+        }
+
+        public boolean isAvrcpAbsoluteVolumeSupported() {
+            A2dpService service = getService();
+            if (service == null) return false;
+            return service.isAvrcpAbsoluteVolumeSupported();
+        }
+
+        public void adjustAvrcpAbsoluteVolume(int direction) {
+            A2dpService service = getService();
+            if (service == null) return;
+            service.adjustAvrcpAbsoluteVolume(direction);
+        }
+
+        public void setAvrcpAbsoluteVolume(int volume) {
+            A2dpService service = getService();
+            if (service == null) return;
+            service.setAvrcpAbsoluteVolume(volume);
         }
 
         public boolean isA2dpPlaying(BluetoothDevice device) {

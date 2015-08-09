@@ -16,7 +16,6 @@
 
 package com.android.bluetooth.hfp;
 
-import android.bluetooth.BluetoothA2dp;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothHeadset;
 import android.bluetooth.BluetoothProfile;
@@ -64,8 +63,6 @@ public class HeadsetService extends ProfileService {
         IntentFilter filter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         filter.addAction(AudioManager.VOLUME_CHANGED_ACTION);
         filter.addAction(BluetoothDevice.ACTION_CONNECTION_ACCESS_REPLY);
-        filter.addAction(BluetoothA2dp.ACTION_PLAYING_STATE_CHANGED);
-        filter.addAction(BluetoothA2dp.ACTION_CONNECTION_STATE_CHANGED);
         try {
             registerReceiver(mHeadsetReceiver, filter);
         } catch (Exception e) {
@@ -107,14 +104,12 @@ public class HeadsetService extends ProfileService {
                 }
             }
             else if (action.equals(BluetoothDevice.ACTION_CONNECTION_ACCESS_REPLY)) {
-                Log.v(TAG, "HeadsetService -  Received BluetoothDevice.ACTION_CONNECTION_ACCESS_REPLY");
-                mStateMachine.handleAccessPermissionResult(intent);
-            } else if (intent.getAction().equals(BluetoothA2dp.ACTION_PLAYING_STATE_CHANGED)) {
-                Log.v(TAG, "HeadsetService -  Received BluetoothA2dp Play State changed");
-                mStateMachine.sendMessage(HeadsetStateMachine.UPDATE_A2DP_PLAY_STATE, intent);
-            } else if (intent.getAction().equals(BluetoothA2dp.ACTION_CONNECTION_STATE_CHANGED)) {
-               Log.v(TAG, "HeadsetService -  Received BluetoothA2dp Conn State changed");
-               mStateMachine.sendMessage(HeadsetStateMachine.UPDATE_A2DP_CONN_STATE, intent);
+                int requestType = intent.getIntExtra(BluetoothDevice.EXTRA_ACCESS_REQUEST_TYPE,
+                                               BluetoothDevice.REQUEST_TYPE_PHONEBOOK_ACCESS);
+                if (requestType == BluetoothDevice.REQUEST_TYPE_PHONEBOOK_ACCESS) {
+                    Log.v(TAG, "Received BluetoothDevice.ACTION_CONNECTION_ACCESS_REPLY");
+                    mStateMachine.handleAccessPermissionResult(intent);
+                }
             }
         }
     };
@@ -266,17 +261,21 @@ public class HeadsetService extends ProfileService {
             service.phoneStateChanged(numActive, numHeld, callState, number, type);
         }
 
-        public void roamChanged(boolean roam) {
-            HeadsetService service = getService();
-            if (service == null) return;
-            service.roamChanged(roam);
-        }
-
         public void clccResponse(int index, int direction, int status, int mode, boolean mpty,
                                  String number, int type) {
             HeadsetService service = getService();
             if (service == null) return;
             service.clccResponse(index, direction, status, mode, mpty, number, type);
+        }
+
+        public boolean sendVendorSpecificResultCode(BluetoothDevice device,
+                                                    String command,
+                                                    String arg) {
+            HeadsetService service = getService();
+            if (service == null) {
+                return false;
+            }
+            return service.sendVendorSpecificResultCode(device, command, arg);
         }
     };
 
@@ -487,16 +486,29 @@ public class HeadsetService extends ProfileService {
         mStateMachine.sendMessage(msg);
     }
 
-    private void roamChanged(boolean roam) {
-        enforceCallingOrSelfPermission(MODIFY_PHONE_STATE, null);
-        mStateMachine.sendMessage(HeadsetStateMachine.ROAM_CHANGED, roam);
-    }
-
     private void clccResponse(int index, int direction, int status, int mode, boolean mpty,
                              String number, int type) {
         enforceCallingOrSelfPermission(MODIFY_PHONE_STATE, null);
         mStateMachine.sendMessage(HeadsetStateMachine.SEND_CCLC_RESPONSE,
             new HeadsetClccResponse(index, direction, status, mode, mpty, number, type));
+    }
+
+    private boolean sendVendorSpecificResultCode(BluetoothDevice device,
+                                                 String command,
+                                                 String arg) {
+        enforceCallingOrSelfPermission(BLUETOOTH_PERM, "Need BLUETOOTH permission");
+        int connectionState = mStateMachine.getConnectionState(device);
+        if (connectionState != BluetoothProfile.STATE_CONNECTED) {
+            return false;
+        }
+        // Currently we support only "+ANDROID".
+        if (!command.equals(BluetoothHeadset.VENDOR_RESULT_CODE_COMMAND_ANDROID)) {
+            Log.w(TAG, "Disallowed unsolicited result code command: " + command);
+            return false;
+        }
+        mStateMachine.sendMessage(HeadsetStateMachine.SEND_VENDOR_SPECIFIC_RESULT_CODE,
+                new HeadsetVendorSpecificResultCode(command, arg));
+        return true;
     }
 
 }
