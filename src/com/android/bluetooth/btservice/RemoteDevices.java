@@ -25,6 +25,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.ParcelUuid;
 import android.util.Log;
+import android.os.PowerManager;
 
 import com.android.bluetooth.Utils;
 import com.android.bluetooth.btservice.RemoteDevices.DeviceProperties;
@@ -43,6 +44,7 @@ final class RemoteDevices {
     private static AdapterService mAdapterService;
     private static ArrayList<BluetoothDevice> mSdpTracker;
 
+    private PowerManager.WakeLock mWakeLock_stack;
     private Object mObject = new Object();
 
     private static final int UUID_INTENT_DELAY = 6000;
@@ -50,11 +52,16 @@ final class RemoteDevices {
 
     private HashMap<BluetoothDevice, DeviceProperties> mDevices;
 
-    RemoteDevices(AdapterService service) {
+    RemoteDevices(PowerManager pm, AdapterService service) {
         mAdapter = BluetoothAdapter.getDefaultAdapter();
         mAdapterService = service;
         mSdpTracker = new ArrayList<BluetoothDevice>();
         mDevices = new HashMap<BluetoothDevice, DeviceProperties>();
+
+        //WakeLock instantiation in RemoteDevices class
+        mWakeLock_stack = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP
+                       | PowerManager.ON_AFTER_RELEASE, TAG);
+        mWakeLock_stack.setReferenceCounted(false);
     }
 
 
@@ -64,6 +71,12 @@ final class RemoteDevices {
 
         if (mDevices != null)
             mDevices.clear();
+
+        if ((mWakeLock_stack != null) && // we have a WakeLock
+           (mWakeLock_stack.isHeld() == true)) { // we hold it
+            mWakeLock_stack.release ();
+            mWakeLock_stack = null;
+        }
     }
 
     public Object Clone() throws CloneNotSupportedException {
@@ -418,6 +431,20 @@ final class RemoteDevices {
         intent.putExtra(BluetoothDevice.EXTRA_DEVICE, device);
         intent.addFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY_BEFORE_BOOT);
         mAdapterService.sendBroadcast(intent, mAdapterService.BLUETOOTH_PERM);
+    }
+
+    void wakeStateChangeCallback(int state) {
+        if (state == 0x01) {
+        // Acquire wakelock to not allow Device to go into power collapse
+             mWakeLock_stack.acquire();
+             debugLog("Wake lock Aquired");
+        } else if (state == 0x00){
+        // Release wakelock to allow Device to go into power collapse.
+             mWakeLock_stack.release();
+             debugLog("Wake lock released");
+        } else
+             errorLog("Wake lock WRONG STATE ***** ");
+
     }
 
     void fetchUuids(BluetoothDevice device) {

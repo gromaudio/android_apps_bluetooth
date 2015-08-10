@@ -69,6 +69,10 @@ final class JniCallbacks {
 		mRemoteDevices.aclStateChangeCallback(status, address, newState);
     }
 
+    void wakeStateChangeCallback(int state) {
+        mRemoteDevices.wakeStateChangeCallback(state);
+    }
+
     void stateChangeCallback(int status) {
         mAdapterStateMachine.stateChangeCallback(status);
     }

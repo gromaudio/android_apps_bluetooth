@@ -66,6 +66,8 @@ import java.util.Map.Entry;
 import java.util.List;
 import android.content.pm.PackageManager;
 import android.os.ServiceManager;
+import android.os.PowerManager;
+
 
 public class AdapterService extends Service {
     private static final String TAG = "BluetoothAdapterService";
@@ -92,6 +94,7 @@ public class AdapterService extends Service {
         classInitNative();
     }
 
+    private PowerManager mPowerManager;
     private static AdapterService sAdapterService;
     public static synchronized AdapterService getAdapterService(){
         if (sAdapterService != null && !sAdapterService.mCleaningUp) {
@@ -255,6 +258,7 @@ public class AdapterService extends Service {
         mAdapterProperties = new AdapterProperties(this);
         mAdapterStateMachine =  AdapterState.make(this, mAdapterProperties);
         mJniCallbacks =  new JniCallbacks(mAdapterStateMachine, mAdapterProperties);
+        mPowerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
         initNative();
         mNativeAvailable=true;
         mCallbacks = new RemoteCallbackList<IBluetoothCallback>();
@@ -286,7 +290,7 @@ public class AdapterService extends Service {
         for (int i=0; i < supportedProfileServices.length;i++) {
             mProfileServicesState.put(supportedProfileServices[i].getName(),BluetoothAdapter.STATE_OFF);
         }
-        mRemoteDevices = new RemoteDevices(this);
+        mRemoteDevices = new RemoteDevices(mPowerManager, this);
         mAdapterProperties.init(mRemoteDevices);
 
         if (DBG) {debugLog("processStart(): Make Bond State Machine");}
