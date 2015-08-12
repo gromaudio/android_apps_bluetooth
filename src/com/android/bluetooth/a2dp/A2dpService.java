@@ -207,19 +207,22 @@ public class A2dpService extends ProfileService {
 
         Log.d(TAG,"setLastConnectedA2dpSepType: " + sepType);
 
-        Settings.Global.putInt(getContentResolver(),
-            Settings.Global.getBluetoothLastConnectedA2dpSepTypeKey(device.getAddress()),
-            sepType);
+        // TODO: not implemented in AOSP
+        //Settings.Global.putInt(getContentResolver(),
+        //    Settings.Global.getBluetoothLastConnectedA2dpSepTypeKey(device.getAddress()),
+        //    sepType);
         return true;
     }
 
     public int getLastConnectedA2dpSepType(BluetoothDevice device) {
         enforceCallingOrSelfPermission(BLUETOOTH_ADMIN_PERM,
                                        "Need BLUETOOTH_ADMIN permission");
-        int sepType = Settings.Global.getInt(getContentResolver(),
-            Settings.Global.getBluetoothLastConnectedA2dpSepTypeKey(device.getAddress()),
-            BluetoothProfile.PROFILE_A2DP_UNDEFINED);
-        return sepType;
+        // TODO: not implemented in AOSP
+        //int sepType = Settings.Global.getInt(getContentResolver(),
+        //    Settings.Global.getBluetoothLastConnectedA2dpSepTypeKey(device.getAddress()),
+        //    BluetoothProfile.PROFILE_A2DP_UNDEFINED);
+        //return sepType;
+        return 0;
     }
 
 

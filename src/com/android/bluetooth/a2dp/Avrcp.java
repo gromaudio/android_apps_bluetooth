@@ -281,7 +281,10 @@ final class Avrcp {
                       mRemoteControlDisplay, true);
         mPendingCmds = new ArrayList<Integer>();
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(AudioManager.RCC_CHANGED_ACTION);
+
+        // TODO: not implemented in AOSP
+        //intentFilter.addAction(AudioManager.RCC_CHANGED_ACTION);
+
         intentFilter.addAction(PLAYERSETTINGS_RESPONSE);
         try {
             mContext.registerReceiver(mIntentReceiver, intentFilter);
@@ -296,22 +299,25 @@ final class Avrcp {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (action.equals(AudioManager.RCC_CHANGED_ACTION)) {
-                Log.v(TAG, "received RCC_CHANGED_ACTION");
-                int isRCCFocussed = 0;
-                int isRCCAvailable = 0;
-                String callingPackageName = intent.getStringExtra(AudioManager.EXTRA_CALLING_PACKAGE_NAME);
-                boolean isFocussed = intent.getBooleanExtra(AudioManager.EXTRA_FOCUS_CHANGED_VALUE,false);
-                boolean isAvailable = intent.getBooleanExtra(AudioManager.EXTRA_AVAILABLITY_CHANGED_VALUE, false);
-                if (isFocussed)
-                    isRCCFocussed = 1;
-                if (isAvailable)
-                    isRCCAvailable = 1;
-                Log.v(TAG, "focus: " + isFocussed + " , availability: " + isAvailable);
-                if (mHandler != null) {
-                    mHandler.obtainMessage(MSG_UPDATE_RCC_CHANGE, isRCCFocussed, isRCCAvailable, callingPackageName).sendToTarget();
-                }
-            } else if (action.equals(PLAYERSETTINGS_RESPONSE)) {
+
+            // TODO: not implemented in AOSP
+            //if (action.equals(AudioManager.RCC_CHANGED_ACTION)) {
+            //    Log.v(TAG, "received RCC_CHANGED_ACTION");
+            //    int isRCCFocussed = 0;
+            //    int isRCCAvailable = 0;
+            //    String callingPackageName = intent.getStringExtra(AudioManager.EXTRA_CALLING_PACKAGE_NAME);
+            //    boolean isFocussed = intent.getBooleanExtra(AudioManager.EXTRA_FOCUS_CHANGED_VALUE,false);
+            //    boolean isAvailable = intent.getBooleanExtra(AudioManager.EXTRA_AVAILABLITY_CHANGED_VALUE, false);
+            //    if (isFocussed)
+            //        isRCCFocussed = 1;
+            //    if (isAvailable)
+            //        isRCCAvailable = 1;
+            //    Log.v(TAG, "focus: " + isFocussed + " , availability: " + isAvailable);
+            //    if (mHandler != null) {
+            //        mHandler.obtainMessage(MSG_UPDATE_RCC_CHANGE, isRCCFocussed, isRCCAvailable, callingPackageName).sendToTarget();
+            //    }
+            //} else 
+            if (action.equals(PLAYERSETTINGS_RESPONSE)) {
                 int getResponse = intent.getIntExtra(EXTRA_GET_RESPONSE,
                                                       GET_INVALID);
                 byte [] data;

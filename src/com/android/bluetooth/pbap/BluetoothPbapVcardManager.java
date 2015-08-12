@@ -787,7 +787,8 @@ public class BluetoothPbapVcardManager {
                 int order = Settings.System.getInt(mResolver,
                         Preferences.DISPLAY_ORDER, Preferences.DISPLAY_ORDER_PRIMARY);
                 if (order == Preferences.DISPLAY_ORDER_ALTERNATIVE) {
-                    vcardType |= VCardConfig.FLAG_USE_ALTERNATIVE_NAME_ORDERING;
+                  //  TODO: not implemented in AOSP.
+                  //  vcardType |= VCardConfig.FLAG_USE_ALTERNATIVE_NAME_ORDERING;
                 }
 
                 composer = new BluetoothPbapVcardComposer(mContext, vcardType, filter, true);
