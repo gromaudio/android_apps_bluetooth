@@ -200,7 +200,7 @@ public class AdapterService extends Service {
                 doUpdate=true;
             }
         }
-        if (DBG) Log.d(TAG,"onProfileServiceStateChange: serviceName=" + serviceName + ", state = " + state +", doUpdate = " + doUpdate);
+        Log.d(TAG,"onProfileServiceStateChange: serviceName=" + serviceName + ", state = " + state +", doUpdate = " + doUpdate);
 
         if (!doUpdate) {
             return;
@@ -243,7 +243,7 @@ public class AdapterService extends Service {
                     }
                 }
             }
-            if (DBG) Log.d(TAG, "All profile services started.");
+            Log.d(TAG, "All profile services started.");
             mProfilesStarted=true;
             //Send message to state machine
             mAdapterStateMachine.sendMessage(mAdapterStateMachine.obtainMessage(AdapterState.STARTED));
