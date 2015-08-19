@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2012 The Android Open Source Project
+ * Copyright (C) 2014 Tieto Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +37,11 @@ import android.bluetooth.BluetoothUuid;
 import android.bluetooth.IBluetooth;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.media.AudioFormat;
 import android.media.AudioManager;
+import android.media.AudioRecord;
+import android.media.AudioTrack;
+import android.media.MediaRecorder.AudioSource;
 import android.media.AudioManager.OnAudioFocusChangeListener;
 import android.os.Handler;
 import android.os.Message;
@@ -62,6 +67,13 @@ import java.util.List;
 import java.util.Set;
 
 final class A2dpStateMachine extends StateMachine {
+    private AudioRecord recorder;
+    private AudioTrack player;
+    private int recorder_buf_size;
+    private int player_buf_size;
+    private boolean mThreadExitFlag = false;
+    private boolean isPlaying = false;
+
     private static final boolean DBG = true;
 
     static final int CONNECT = 1;
@@ -156,6 +168,60 @@ final class A2dpStateMachine extends StateMachine {
 
         mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
 
+        recorder_buf_size = AudioRecord.getMinBufferSize(44100, AudioFormat.CHANNEL_IN_STEREO, AudioFormat.ENCODING_PCM_16BIT);
+        player_buf_size = AudioTrack.getMinBufferSize(44100, AudioFormat.CHANNEL_IN_STEREO, AudioFormat.ENCODING_PCM_16BIT);
+    }
+    private void cleanAudioTrack()
+    {
+        audioPause();
+        mThreadExitFlag = true;
+        if (recorder != null) {
+            recorder.release();
+            recorder = null;
+        }
+        if (player != null) {
+            player.release();
+            player = null;
+        }
+    }
+    private void initAudioTrack()
+    {
+        if (recorder == null) {
+            recorder = new AudioRecord(AudioSource.BLUETOOTH_A2DP,
+                44100,
+                AudioFormat.CHANNEL_IN_STEREO,
+                AudioFormat.ENCODING_PCM_16BIT,
+                recorder_buf_size
+                );
+        }
+
+        if (player == null) {
+            player = new AudioTrack(AudioManager.STREAM_MUSIC,
+                44100,
+                AudioFormat.CHANNEL_OUT_STEREO,
+                AudioFormat.ENCODING_PCM_16BIT,
+                player_buf_size,
+                AudioTrack.MODE_STREAM
+                );
+        }
+    }
+    private void audioPlay()
+    {
+        initAudioTrack();
+        if (isPlaying == false) {
+            isPlaying = true;
+            mThreadExitFlag = false;
+            new RecordThread().start();
+        }
+    }
+    private void audioPause()
+    {
+        if (isPlaying == true) {
+            isPlaying = false;
+            mThreadExitFlag = true;
+            recorder.stop();
+            player.stop();
+        }
     }
 
     static A2dpStateMachine make(A2dpService svc, Context context) {
@@ -184,10 +250,13 @@ final class A2dpStateMachine extends StateMachine {
         cleanupNative();
     }
 
-        private class Disconnected extends State {
+    private class Disconnected extends State {
         @Override
         public void enter() {
             log("Enter Disconnected: " + getCurrentMessage().what);
+            if (isA2dpSinkEnabled()) {
+                cleanAudioTrack();
+            }
             // Remove Timeout msg when moved to stable state
             removeMessages(CONNECT_TIMEOUT);
         }
@@ -658,6 +727,9 @@ final class A2dpStateMachine extends StateMachine {
             log("processAudioStateEvent  " + state);
             switch (state) {
                 case AUDIO_STATE_STARTED:
+                    if (isA2dpSinkEnabled()) {
+                        audioPlay();
+                    }
                     if (mPlayingA2dpDevice == null) {
                         mPlayingA2dpDevice = device;
                         mService.setAvrcpAudioState(BluetoothA2dp.STATE_PLAYING);
@@ -667,6 +739,10 @@ final class A2dpStateMachine extends StateMachine {
                     break;
                 case AUDIO_STATE_STOPPED:
                 case AUDIO_STATE_REMOTE_SUSPEND:
+                    loge("Audio State Device: " + device + " state: " + state);
+                    if (isA2dpSinkEnabled()) {
+                        audioPause();
+                    }
                     if (mPlayingA2dpDevice != null) {
                         mPlayingA2dpDevice = null;
                         mService.setAvrcpAudioState(BluetoothA2dp.STATE_NOT_PLAYING);
@@ -810,6 +886,10 @@ final class A2dpStateMachine extends StateMachine {
 
         // now get profile value of this device.
         remoteSepConnected = mService.getLastConnectedA2dpSepType(device);
+        if(newState == BluetoothProfile.STATE_CONNECTED)
+            remoteSepConnected = BluetoothProfile.PROFILE_A2DP_SNK;
+
+        log(" remote Sep: " + remoteSepConnected);
 
         if (remoteSepConnected == BluetoothProfile.PROFILE_A2DP_SNK)
             log(" Remote Sep Connected " + "SINK" + "device: " + device);
@@ -819,7 +899,8 @@ final class A2dpStateMachine extends StateMachine {
             log(" Remote Sep Connected " + "NO Records" + "device: " + device);
 
         if ((remoteSepConnected == BluetoothProfile.PROFILE_A2DP_SNK) &&
-                        (newState != BluetoothProfile.STATE_CONNECTING)) {
+                        (newState != BluetoothProfile.STATE_CONNECTING)) 
+        {
             // inform Audio Manager now
             log(" updating audioManager state: " + newState);
             delay = mAudioManager.setBluetoothA2dpDeviceConnectionState(device, newState);
@@ -1001,6 +1082,10 @@ final class A2dpStateMachine extends StateMachine {
         }
     };
 
+    private static boolean isA2dpSinkEnabled() {
+        ParcelUuid[] uuids = BluetoothAdapter.getDefaultAdapter().getUuids();
+        return BluetoothUuid.isUuidPresent(uuids,BluetoothUuid.AudioSink);
+    }
 
     // Event types for STACK_EVENT message
     final private static int EVENT_TYPE_NONE = 0;
@@ -1031,4 +1116,34 @@ final class A2dpStateMachine extends StateMachine {
     private native void suspendA2dpNative();
     private native void resumeA2dpNative();
     private native void informAudioFocusStateNative(int state);
+
+    class RecordThread  extends Thread{
+        @Override
+        public void run() {
+            byte[] buffer = new byte[recorder_buf_size];
+loge("buff size: " + recorder_buf_size + ", " + mThreadExitFlag);
+            recorder.startRecording();
+            player.play();
+            while(true) {
+loge("loop: " + mThreadExitFlag);
+                if (mThreadExitFlag == true) {
+                    break;
+                }
+                try {
+loge("read");
+                    int res = recorder.read(buffer, 0, recorder_buf_size);
+loge("br: " + res);
+                    if (res>0) {
+                        byte[] tmpBuf = new byte[res];
+                        System.arraycopy(buffer, 0, tmpBuf, 0, res);
+                        player.write(tmpBuf, 0, tmpBuf.length);
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    break;
+                }
+            }
+        }
+    }
 }

@@ -1009,12 +1009,11 @@ public class AdapterService extends Service {
 
      int getState() {
         enforceCallingOrSelfPermission(BLUETOOTH_PERM, "Need BLUETOOTH permission");
-
         if (mAdapterProperties == null){
             return  BluetoothAdapter.STATE_OFF;
         }
         else {
-            if (DBG) debugLog("getState(): mAdapterProperties: " + mAdapterProperties);
+            if (DBG) debugLog("getState(): " + mAdapterProperties.getState());
             return mAdapterProperties.getState();
         }
     }

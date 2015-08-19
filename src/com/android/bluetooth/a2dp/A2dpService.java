@@ -42,6 +42,7 @@ public class A2dpService extends ProfileService {
 
     private A2dpStateMachine mStateMachine;
     private Avrcp mAvrcp;
+    private int mSepType;
     private static A2dpService sAd2dpService;
     static final ParcelUuid[] A2DP_SOURCE_UUID = {
         BluetoothUuid.AudioSource
@@ -206,6 +207,7 @@ public class A2dpService extends ProfileService {
                                        "Need BLUETOOTH_ADMIN permission");
 
         Log.d(TAG,"setLastConnectedA2dpSepType: " + sepType);
+        mSepType = sepType;
 
         // TODO: not implemented in AOSP
         //Settings.Global.putInt(getContentResolver(),
@@ -222,7 +224,7 @@ public class A2dpService extends ProfileService {
         //    Settings.Global.getBluetoothLastConnectedA2dpSepTypeKey(device.getAddress()),
         //    BluetoothProfile.PROFILE_A2DP_UNDEFINED);
         //return sepType;
-        return 0;
+        return mSepType;
     }
 
 
