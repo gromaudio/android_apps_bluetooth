@@ -303,7 +303,7 @@
                 <action android:name="android.bluetooth.IBluetoothPan" />
             </intent-filter>
         </service>
-    <service
+        <service
             android:process="@string/process"
             android:name = ".hfpclient.HandsfreeClientService"
             android:enabled="@bool/profile_supported_hfpclient">

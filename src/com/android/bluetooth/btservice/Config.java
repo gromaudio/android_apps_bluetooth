@@ -88,6 +88,8 @@ public class Config {
             boolean supported = resources.getBoolean(PROFILE_SERVICES_FLAG[i]);
             if (supported) {
                 Log.d(TAG, "Adding " + PROFILE_SERVICES[i].getSimpleName());
+/* allways activate HFP client if stack configured to use it.  Ivan 8/19/2015. */
+/*
                 if (PROFILE_SERVICES[i].getSimpleName().equals("HandsfreeClientService")) {
                     enableHfpclient = SystemProperties.getInt("bluetooth.hfp.client",
                             hfpClientNotSupported);
@@ -96,6 +98,7 @@ public class Config {
                         profiles.add(PROFILE_SERVICES[i]);
                     continue;
                 }
+*/
                 profiles.add(PROFILE_SERVICES[i]);
             }
         }
