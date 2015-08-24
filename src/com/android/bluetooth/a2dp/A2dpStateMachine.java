@@ -1121,18 +1121,14 @@ final class A2dpStateMachine extends StateMachine {
         @Override
         public void run() {
             byte[] buffer = new byte[recorder_buf_size];
-loge("buff size: " + recorder_buf_size + ", " + mThreadExitFlag);
             recorder.startRecording();
             player.play();
             while(true) {
-loge("loop: " + mThreadExitFlag);
                 if (mThreadExitFlag == true) {
                     break;
                 }
                 try {
-loge("read");
                     int res = recorder.read(buffer, 0, recorder_buf_size);
-loge("br: " + res);
                     if (res>0) {
                         byte[] tmpBuf = new byte[res];
                         System.arraycopy(buffer, 0, tmpBuf, 0, res);

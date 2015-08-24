@@ -149,6 +149,7 @@ public class PanService extends ProfileService {
     private final Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
+Log.e(TAG, "HandleMessage: " + msg);
             switch (msg.what) {
                 case MESSAGE_CONNECT:
                 {
@@ -192,6 +193,7 @@ public class PanService extends ProfileService {
                 break;
                 case AsyncChannel.CMD_CHANNEL_FULL_CONNECTION:
                 {
+Log.e(TAG, "CMD_CHANNEL_FULL_CONNECTION: " + mTetherAc);
                     if (mTetherAc != null) {
                         mTetherAc.replyToMessage(msg,
                                 AsyncChannel.CMD_CHANNEL_FULLY_CONNECTED,
