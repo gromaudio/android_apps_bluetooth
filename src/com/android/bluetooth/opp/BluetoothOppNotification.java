@@ -388,8 +388,9 @@ class BluetoothOppNotification {
             // Build the notification object
             // TODO: split description into two rows with filename in second row
             Notification.Builder b = new Notification.Builder(mContext);
-            b.setColor(mContext.getResources().getColor(
-                    com.android.internal.R.color.system_notification_accent_color));
+            // TODO: DSFIX
+            //b.setColor(mContext.getResources().getColor(
+//                    com.android.internal.R.color.system_notification_accent_color));
             b.setContentTitle(item.description);
             b.setContentInfo(
                     BluetoothOppUtility.formatProgressText(item.totalTotal, item.totalCurrent));
@@ -508,8 +509,9 @@ class BluetoothOppNotification {
                     outboundFailNumber);
             intent = new Intent(Constants.ACTION_OPEN_OUTBOUND_TRANSFER);
             intent.setClassName(Constants.THIS_PACKAGE_NAME, BluetoothOppReceiver.class.getName());
-            outNoti.color = mContext.getResources().getColor(
-                    com.android.internal.R.color.system_notification_accent_color);
+            // TODO: DSFIX
+            //outNoti.color = mContext.getResources().getColor(
+                    //com.android.internal.R.color.system_notification_accent_color);
             outNoti.setLatestEventInfo(mContext, title, caption, PendingIntent.getBroadcast(
                     mContext, 0, intent, 0));
             intent = new Intent(Constants.ACTION_COMPLETE_HIDE);
@@ -564,8 +566,9 @@ class BluetoothOppNotification {
                     inboundFailNumber);
             intent = new Intent(Constants.ACTION_OPEN_INBOUND_TRANSFER);
             intent.setClassName(Constants.THIS_PACKAGE_NAME, BluetoothOppReceiver.class.getName());
-            inNoti.color = mContext.getResources().getColor(
-                    com.android.internal.R.color.system_notification_accent_color);
+            // TODO: DSFIX
+            //inNoti.color = mContext.getResources().getColor(
+                    //com.android.internal.R.color.system_notification_accent_color);
             inNoti.setLatestEventInfo(mContext, title, caption, PendingIntent.getBroadcast(
                     mContext, 0, intent, 0));
             intent = new Intent(Constants.ACTION_COMPLETE_HIDE);
@@ -625,8 +628,9 @@ class BluetoothOppNotification {
 
                 n.when = timeStamp;
                 try {
-                    n.color = mContext.getResources().getColor(
-                            com.android.internal.R.color.system_notification_accent_color);
+                    // TODO: DSFIX
+                    //n.color = mContext.getResources().getColor(
+                            //com.android.internal.R.color.system_notification_accent_color);
                 } catch (NotFoundException e) {
                     Log.e(TAG, "Resource not found");
                 }

@@ -342,8 +342,8 @@ public class ScanManager {
         // Map of clientIf and Filter indices used by client.
         private final Map<Integer, Deque<Integer>> mClientFilterIndexMap;
         // Keep track of the clients that uses ALL_PASS filters.
-        private final Set<Integer> mAllPassRegularClients = new HashSet<>();
-        private final Set<Integer> mAllPassBatchClients = new HashSet<>();
+        private final Set<Integer> mAllPassRegularClients = new HashSet<Integer>();
+        private final Set<Integer> mAllPassBatchClients = new HashSet<Integer>();
 
         private AlarmManager mAlarmManager;
         private PendingIntent mBatchScanIntervalIntent;

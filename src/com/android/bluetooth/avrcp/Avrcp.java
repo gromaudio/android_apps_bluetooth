@@ -651,6 +651,8 @@ public final class Avrcp {
             }
         }
 
+        // TODO: DSFIX
+        /*
         @Override
         public void onClientFolderInfoBrowsedPlayer(String stringUri) {
             Log.v(TAG, "onClientFolderInfoBrowsedPlayer: stringUri: " + stringUri);
@@ -715,6 +717,7 @@ public final class Avrcp {
                                                                             .sendToTarget();
             }
         }
+        */
     }
 
     /** Handles Avrcp messages. */
@@ -1568,7 +1571,8 @@ public final class Avrcp {
             }
         }
         if (packageName != null) {
-            mRemoteController.setRemoteControlClientBrowsedPlayer();
+            // TODO: DSFIX
+            //mRemoteController.setRemoteControlClientBrowsedPlayer();
         } else {
             if (DEBUG) Log.v(TAG, "player not available for browse");
             setBrowsedPlayerRspNative(retError, 0x0, 0, 0, 0, null);
@@ -1970,7 +1974,8 @@ public final class Avrcp {
                         playItemRspNative(DOES_NOT_EXIST);
                     } else {
                         Log.i(TAG, "Play uid:" + uid);
-                        mRemoteController.setRemoteControlClientPlayItem(uid, scope);
+                        // TODO: DSFIX
+                        //mRemoteController.setRemoteControlClientPlayItem(uid, scope);
                     }
                 } catch (Exception e) {
                     Log.e(TAG, "Exception " + e);
@@ -1997,7 +2002,8 @@ public final class Avrcp {
                             playItemRspNative(DOES_NOT_EXIST);
                         } else {
                             Log.i(TAG, "Play uid:" + uid);
-                            mRemoteController.setRemoteControlClientPlayItem(uid, scope);
+                            // TODO: DSFIX
+                            //mRemoteController.setRemoteControlClientPlayItem(uid, scope);
                         }
                     } catch (Exception e) {
                         Log.e(TAG, "Exception " + e);
@@ -2025,7 +2031,8 @@ public final class Avrcp {
                             playItemRspNative(DOES_NOT_EXIST);
                         } else {
                             Log.i(TAG, "Play uid:" + uid);
-                            mRemoteController.setRemoteControlClientPlayItem(uid, scope);
+                            // TODO: DSFIX
+                            //mRemoteController.setRemoteControlClientPlayItem(uid, scope);
                         }
                     } catch (Exception e) {
                         Log.e(TAG, "Exception " + e);
@@ -2066,7 +2073,8 @@ public final class Avrcp {
                             playItemRspNative(DOES_NOT_EXIST);
                         } else {
                             Log.i(TAG, "Play uid:" + uid);
-                            mRemoteController.setRemoteControlClientPlayItem(uid, scope);
+                            // TODO: DSFIX
+                            //mRemoteController.setRemoteControlClientPlayItem(uid, scope);
                         }
                     } catch (Exception e) {
                         Log.e(TAG, "Exception " + e);
@@ -2081,7 +2089,8 @@ public final class Avrcp {
                 playItemRspNative(DOES_NOT_EXIST);
             }
         } else if (scope == SCOPE_NOW_PLAYING) {
-            mRemoteController.setRemoteControlClientPlayItem(uid, scope);
+            // TODO: DSFIX
+            //mRemoteController.setRemoteControlClientPlayItem(uid, scope);
         } else {
             playItemRspNative(DOES_NOT_EXIST);
             Log.e(TAG, "Play Item fails: Invalid scope");
@@ -2980,7 +2989,8 @@ public final class Avrcp {
                     }
                 }
             }
-            mRemoteController.getRemoteControlClientNowPlayingEntries();
+            // TODO: DSFIX
+            //mRemoteController.getRemoteControlClientNowPlayingEntries();
             mCachedRequest = new CachedRequest(start, end, numAttr, attrs);
         }
     }

@@ -147,9 +147,11 @@ public class A2dpSinkService extends ProfileService {
     public boolean setPriority(BluetoothDevice device, int priority) {
         enforceCallingOrSelfPermission(BLUETOOTH_ADMIN_PERM,
                                        "Need BLUETOOTH_ADMIN permission");
-        Settings.Global.putInt(getContentResolver(),
+        // TODO: DSFIX
+        /* Settings.Global.putInt(getContentResolver(),
             Settings.Global.getBluetoothA2dpSrcPriorityKey(device.getAddress()),
             priority);
+            */
         Log.d(TAG,"Saved priority " + device + " = " + priority);
         return true;
     }
@@ -157,10 +159,14 @@ public class A2dpSinkService extends ProfileService {
     public int getPriority(BluetoothDevice device) {
         enforceCallingOrSelfPermission(BLUETOOTH_ADMIN_PERM,
                                        "Need BLUETOOTH_ADMIN permission");
+        // TODO: DSFIX
+        /*
         int priority = Settings.Global.getInt(getContentResolver(),
             Settings.Global.getBluetoothA2dpSrcPriorityKey(device.getAddress()),
             BluetoothProfile.PRIORITY_UNDEFINED);
-        return priority;
+            return priority;
+            */
+        return BluetoothProfile.PRIORITY_UNDEFINED;
     }
 
     synchronized boolean isA2dpPlaying(BluetoothDevice device) {

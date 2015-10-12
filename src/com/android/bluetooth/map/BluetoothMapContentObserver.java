@@ -1222,12 +1222,12 @@ public class BluetoothMapContentObserver {
 
     private void registerPhoneServiceStateListener() {
         TelephonyManager tm = (TelephonyManager)mContext.getSystemService(Context.TELEPHONY_SERVICE);
-        tm.listen(mPhoneListener, PhoneStateListener.LISTEN_SERVICE_STATE);
+        //tm.listen(mPhoneListener, PhoneStateListener.LISTEN_SERVICE_STATE);
     }
 
     private void unRegisterPhoneServiceStateListener() {
         TelephonyManager tm = (TelephonyManager)mContext.getSystemService(Context.TELEPHONY_SERVICE);
-        tm.listen(mPhoneListener, PhoneStateListener.LISTEN_NONE);
+        //tm.listen(mPhoneListener, PhoneStateListener.LISTEN_NONE);
     }
 
     private void resendPendingMessages() {
@@ -1276,7 +1276,7 @@ public class BluetoothMapContentObserver {
         mResolver.delete(Uri.parse("content://sms/"),
                 "thread_id = " + DELETED_THREAD_ID, null);
     }
-
+/*
     private PhoneStateListener mPhoneListener = new PhoneStateListener (Long.MAX_VALUE - 1,
                                                          Looper.getMainLooper())  {
         @Override
@@ -1287,6 +1287,7 @@ public class BluetoothMapContentObserver {
             }
         }
     };
+    */
 
     public void init() {
         mSmsBroadcastReceiver.register();

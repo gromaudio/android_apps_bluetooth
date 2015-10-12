@@ -120,7 +120,9 @@ public class AdapterService extends Service {
     public static final String BLUETOOTH_PRIVILEGED =
                 android.Manifest.permission.BLUETOOTH_PRIVILEGED;
     static final String BLUETOOTH_PERM = android.Manifest.permission.BLUETOOTH;
-    static final String RECEIVE_MAP_PERM = android.Manifest.permission.RECEIVE_BLUETOOTH_MAP;
+    // TODO: DSFIX
+    //static final String RECEIVE_MAP_PERM = android.Manifest.permission.RECEIVE_BLUETOOTH_MAP;
+    static final String RECEIVE_MAP_PERM = android.Manifest.permission.BLUETOOTH;
 
     private static final String PHONEBOOK_ACCESS_PERMISSION_PREFERENCE_FILE =
             "phonebook_access_permission";

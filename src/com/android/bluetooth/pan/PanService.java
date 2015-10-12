@@ -79,7 +79,7 @@ public class PanService extends ProfileService {
     private static final String PAN_PREFERENCE_FILE = "PANMGR";
     private static final String PAN_TETHER_SETTING = "TETHERSTATE";
 
-    private BluetoothTetheringNetworkFactory mNetworkFactory;
+    private Object mNetworkFactory;
 
 
     static {
@@ -106,8 +106,8 @@ public class PanService extends ProfileService {
         initializeNative();
         mNativeAvailable=true;
 
-        mNetworkFactory = new BluetoothTetheringNetworkFactory(getBaseContext(), getMainLooper(),
-                this);
+        //mNetworkFactory = new BluetoothTetheringNetworkFactory(getBaseContext(), getMainLooper(),
+        //        this);
 
         // Set mTetherOn based on the last saved tethering preference while starting the Pan service
         SharedPreferences tetherSetting = getSharedPreferences(PAN_PREFERENCE_FILE, 0);
@@ -303,6 +303,7 @@ public class PanService extends ProfileService {
 
     void setBluetoothTethering(boolean value) {
         if(DBG) Log.d(TAG, "setBluetoothTethering: " + value +", mTetherOn: " + mTetherOn);
+        /*
         ConnectivityManager.enforceTetherChangePermission(getBaseContext());
         enforceCallingOrSelfPermission(BLUETOOTH_ADMIN_PERM, "Need BLUETOOTH_ADMIN permission");
         UserManager um = (UserManager) getSystemService(Context.USER_SERVICE);
@@ -324,6 +325,7 @@ public class PanService extends ProfileService {
             for(BluetoothDevice dev : DevList)
                 disconnect(dev);
         }
+        */
     }
 
     List<BluetoothDevice> getConnectedDevices() {
@@ -448,11 +450,11 @@ public class PanService extends ProfileService {
             Log.d(TAG, "handlePanDeviceStateChange LOCAL_PANU_ROLE:REMOTE_NAP_ROLE state = " +
                     state + ", prevState = " + prevState);
             if (state == BluetoothProfile.STATE_CONNECTED) {
-                mNetworkFactory.startReverseTether(iface);
+                //mNetworkFactory.startReverseTether(iface);
            } else if (state == BluetoothProfile.STATE_DISCONNECTED &&
                    (prevState == BluetoothProfile.STATE_CONNECTED ||
                    prevState == BluetoothProfile.STATE_DISCONNECTING)) {
-                mNetworkFactory.stopReverseTether();
+                //mNetworkFactory.stopReverseTether();
             }
         }
 

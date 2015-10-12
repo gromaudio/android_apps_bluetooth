@@ -89,7 +89,8 @@ public class BluetoothOppIncomingFileConfirmActivity extends AlertActivity imple
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setTheme(R.style.Theme_Material_Settings_Floating);
+        // TODO: DSFIX
+        //setTheme(R.style.Theme_Material_Settings_Floating);
         if (V) Log.d(TAG, "onCreate(): action = " + getIntent().getAction());
         super.onCreate(savedInstanceState);
 

@@ -134,7 +134,8 @@ public class BluetoothOppTransferActivity extends AlertActivity implements
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setTheme(R.style.Theme_Material_Settings_Floating);
+        // TODO: DSFIX
+        //setTheme(R.style.Theme_Material_Settings_Floating);
         super.onCreate(savedInstanceState);
         Intent intent = getIntent();
         mUri = intent.getData();

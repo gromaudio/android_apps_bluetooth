@@ -667,7 +667,7 @@ public class BluetoothPbapObexServer extends ServerRequestHandler {
     private int createList(final int maxListCount, final int listStartOffset,
         final String searchValue, StringBuilder result, String type, boolean SIM) {
         int itemsFound = 0, pos = 0;
-        ArrayList<Integer> savedPosList = new ArrayList<>();
+        ArrayList<Integer> savedPosList = new ArrayList<Integer>();
         ArrayList<String> nameList = null;
         ArrayList<String> selectedNameList = new ArrayList<String>();
         //check if current request is for SIM

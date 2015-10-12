@@ -686,8 +686,9 @@ public class BluetoothMapContent {
                     new String[] {String.valueOf(msgId)}, null);
                 if (cr != null && cr.moveToFirst()) {
                     ParcelFileDescriptor fd = null;
-                    String textContentURI = cr.getString(cr.getColumnIndex(
-                                                BodyColumns.TEXT_CONTENT_URI));
+                    // TODO: DSFIX
+                    String textContentURI = null; //cr.getString(cr.getColumnIndex(
+                                                //BodyColumns.TEXT_CONTENT_URI));
                     if (textContentURI != null ) {
                         try {
                            Log.v(TAG, " TRY EMAIL BODY textURI " + textContentURI);
@@ -697,8 +698,9 @@ public class BluetoothMapContent {
                         }
                     }
                     if(fd == null ) {
-                       String htmlContentURI = cr.getString(cr.getColumnIndex(
-                                                   BodyColumns.HTML_CONTENT_URI));
+                        // TODO: DSFIX
+                       String htmlContentURI = null; //cr.getString(cr.getColumnIndex(
+                                                   //BodyColumns.HTML_CONTENT_URI));
                        if (htmlContentURI != null ) {
                            try {
                              Log.v(TAG, " TRY EMAIL BODY htmlURI " + htmlContentURI);
@@ -2052,8 +2054,9 @@ public class BluetoothMapContent {
         if(c != null) {
            if (V) Log.v(TAG, "cursor not null");
            if (c.moveToFirst()) {
-                String textContentURI = c.getString(c.getColumnIndex(BodyColumns.TEXT_CONTENT_URI));
-                String htmlContentURI = c.getString(c.getColumnIndex(BodyColumns.HTML_CONTENT_URI));
+               // TODO: DSFIX
+                String textContentURI = null; //c.getString(c.getColumnIndex(BodyColumns.TEXT_CONTENT_URI));
+                String htmlContentURI = null; //c.getString(c.getColumnIndex(BodyColumns.HTML_CONTENT_URI));
                 if(textContentURI != null || htmlContentURI != null ) {
                     if(V) {
                         Log.v(TAG, " EMAIL BODY textURI " + textContentURI);
