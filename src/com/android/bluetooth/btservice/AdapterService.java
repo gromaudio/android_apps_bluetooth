@@ -370,6 +370,13 @@ public class AdapterService extends Service {
         mAlarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         mPowerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
 
+        // At previous place these checks failed because of Adapter state machine was turning on
+        checkA2dpState();
+
+        checkHidState();
+
+        checkHfpState();
+
         registerReceiver(mAlarmBroadcastReceiver, new IntentFilter(ACTION_ALARM_WAKEUP));
     }
 
@@ -408,12 +415,6 @@ public class AdapterService extends Service {
 
         //FIXME: Set static instance here???
         setAdapterService(this);
-
-        checkA2dpState();
-
-        checkHidState();
-
-        checkHfpState();
 
         //Start profile services
         if (!mProfilesStarted && supportedProfileServices.length >0) {
