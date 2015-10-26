@@ -15,8 +15,7 @@ LOCAL_SRC_FILES:= \
     com_android_bluetooth_hidd.cpp \
     com_android_bluetooth_hdp.cpp \
     com_android_bluetooth_pan.cpp \
-    com_android_bluetooth_gatt.cpp \
-    android_hardware_wipower.cpp
+    com_android_bluetooth_gatt.cpp
 
 LOCAL_C_INCLUDES += \
     $(JNI_H_INCLUDE) \
