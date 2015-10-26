@@ -365,7 +365,8 @@ public final class Avrcp {
         mCurrentPathUid = null;
         mMediaUri = Uri.EMPTY;
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(AudioManager.RCC_CHANGED_ACTION);
+        // TODO: DSFIX
+        //intentFilter.addAction(AudioManager.RCC_CHANGED_ACTION);
         intentFilter.addAction(PLAYERSETTINGS_RESPONSE);
         try {
             mContext.registerReceiver(mIntentReceiver, intentFilter);
@@ -384,6 +385,8 @@ public final class Avrcp {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
+            // TODO: DSFIX: using RCC_CHANGED_ACTION needs porting a lot of code
+            /*
             if (action.equals(AudioManager.RCC_CHANGED_ACTION)) {
                 Log.v(TAG, "received RCC_CHANGED_ACTION");
                 int isRCCFocussed = 0;
@@ -399,7 +402,8 @@ public final class Avrcp {
                 if (mHandler != null) {
                     mHandler.obtainMessage(MSG_UPDATE_RCC_CHANGE, isRCCFocussed, isRCCAvailable, callingPackageName).sendToTarget();
                 }
-            } else if (action.equals(PLAYERSETTINGS_RESPONSE)) {
+            } else*/
+            if (action.equals(PLAYERSETTINGS_RESPONSE)) {
                 int getResponse = intent.getIntExtra(EXTRA_GET_RESPONSE,
                                                       GET_INVALID);
                 byte [] data;
