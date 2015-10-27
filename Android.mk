@@ -17,7 +17,7 @@ LOCAL_STATIC_JAVA_LIBRARIES := com.android.vcard
 LOCAL_STATIC_JAVA_LIBRARIES += com.android.emailcommon
 #LOCAL_STATIC_JAVA_LIBRARIES += javax.btobex
 
-LOCAL_REQUIRED_MODULES := bluetooth.default
+LOCAL_REQUIRED_MODULES := libbluetooth_jni bluetooth.default
 LOCAL_MULTILIB := 32
 
 LOCAL_PROGUARD_ENABLED := disabled
