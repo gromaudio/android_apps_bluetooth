@@ -1464,9 +1464,5 @@ jint JNI_OnLoad(JavaVM *jvm, void *reserved)
         ALOGE("jni gatt registration failure: %d", status);
         return JNI_ERR;
     }
-    if ((status = android::register_com_android_bluetooth_btservice_QAdapterService(e)) < 0) {
-        ALOGE("jni Q adapter service failure: %d", status);
-        return JNI_ERR;
-    }
     return JNI_VERSION_1_6;
 }
